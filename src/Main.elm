@@ -14,6 +14,7 @@ import Element.Input as Input
 
 type Page
     = InputPage
+    | DisplayPage
 
 
 type alias Model =
@@ -61,7 +62,7 @@ update msg model =
             ( { model | currPlanText = s }, Cmd.none )
 
         SubmitPlan ->
-            ( model, Cmd.none )
+            ( { model | currPage = DisplayPage }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
@@ -147,14 +148,28 @@ inputPage model =
         ]
 
 
+displayPage : Model -> Element Msg
+displayPage model =
+    column [] [ text model.currPlanText ]
+
+
 view : Model -> Browser.Document Msg
 view model =
+    let
+        content =
+            case model.currPage of
+                DisplayPage ->
+                    displayPage model
+
+                InputPage ->
+                    inputPage model
+    in
     { title = "VisExp"
     , body =
         [ layout [] <|
             column [ width fill, spacingXY 0 20 ]
                 [ navBar
-                , inputPage model
+                , content
                 ]
         ]
     }
