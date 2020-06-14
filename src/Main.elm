@@ -21,6 +21,7 @@ import PlanParsers.Json exposing (..)
 type Page
     = InputPage
     | DisplayPage
+    | LoginPage
 
 
 type alias Model =
@@ -28,6 +29,9 @@ type alias Model =
     , currPlanText : String
     , selectedNode : Maybe Plan
     , isMenuOpen : Bool
+    , password : String
+    , userName : String
+    , loginError : String
     }
 
 
@@ -41,6 +45,9 @@ init _ =
       , currPlanText = ""
       , selectedNode = Nothing
       , isMenuOpen = False
+      , password = ""
+      , userName = ""
+      , loginError = ""
       }
     , Cmd.none
     )
@@ -68,6 +75,9 @@ type Msg
     | ToggleMenu
     | CreatePlan
     | RequestLogin
+    | StartLogin
+    | ChangePassword String
+    | ChangeUserName String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -96,6 +106,15 @@ update msg model =
             ( model, Cmd.none )
 
         RequestLogin ->
+            ( { model | currPage = LoginPage, password = "", userName = "" }, Cmd.none )
+
+        StartLogin ->
+            ( model, Cmd.none )
+
+        ChangePassword newPassword ->
+            ( model, Cmd.none )
+
+        ChangeUserName newUserName ->
             ( model, Cmd.none )
 
         NoOp ->
@@ -337,6 +356,29 @@ menuPanel model =
         none
 
 
+loginPage : Model -> Element Msg
+loginPage model =
+    column [ paddingXY 0 20, spacingXY 0 10, width (px 300), centerX ]
+        [ Input.username Attr.input
+            { onChange = ChangeUserName
+            , text = model.userName
+            , label = Input.labelAbove [ alignLeft ] <| text "User name:"
+            , placeholder = Nothing
+            }
+        , Input.currentPassword Attr.input
+            { onChange = ChangePassword
+            , text = model.password
+            , label = Input.labelAbove [ alignLeft ] <| text "Password:"
+            , placeholder = Nothing
+            , show = False
+            }
+        , Input.button Attr.greenButton
+            { onPress = Just StartLogin
+            , label = el [ centerX ] <| text "Login"
+            }
+        ]
+
+
 view : Model -> Browser.Document Msg
 view model =
     let
@@ -347,6 +389,9 @@ view model =
 
                 InputPage ->
                     inputPage model
+
+                LoginPage ->
+                    loginPage model
     in
     { title = "pgExplain"
     , body =

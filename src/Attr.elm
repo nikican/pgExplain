@@ -1,4 +1,4 @@
-module Attr exposing (greenButton, greyButton)
+module Attr exposing (error, greenButton, greyButton, input)
 
 import Color exposing (..)
 import Element exposing (..)
@@ -29,3 +29,13 @@ greyButton =
     , Font.bold
     , Font.color americanRiver
     ]
+
+
+input : List (Attribute msg)
+input =
+    [ Border.width 1, Border.rounded 3, Border.color americanRiver, padding 3 ]
+
+
+error : List (Attribute msg)
+error =
+    [ Font.color chiGong ]
