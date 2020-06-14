@@ -348,7 +348,7 @@ view model =
                 InputPage ->
                     inputPage model
     in
-    { title = "VisExp"
+    { title = "pgExplain"
     , body =
         [ layout [ inFront <| menuPanel model ] <|
             column [ width fill, spacingXY 0 20 ]
