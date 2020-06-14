@@ -114,7 +114,7 @@ navBar =
         , Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
         , Border.color electronBlue
         ]
-        [ el [ alignLeft ] <| text "VisExp"
+        [ el [ alignLeft ] <| text "pgExplain"
         , Input.button (Attr.greyButton ++ [ padding 5, alignRight, width (px 80) ])
             { onPress = Just ToggleMenu
             , label = el [ centerX ] <| text "Menu"
