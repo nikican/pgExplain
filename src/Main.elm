@@ -6,6 +6,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import Html.Attributes exposing (coords)
 import Json.Decode
 import PlanParsers.Json exposing (..)
 
@@ -74,11 +75,6 @@ update msg model =
 ---- VIEW ----
 
 
-blue : Color
-blue =
-    rgb255 52 101 164
-
-
 navBar : Element Msg
 navBar =
     row
@@ -97,6 +93,16 @@ lightCharcoal =
     rgb255 136 138 133
 
 
+blue : Color
+blue =
+    rgb255 52 101 164
+
+
+lightBlue : Color
+lightBlue =
+    rgb255 173 216 320
+
+
 green : Color
 green =
     rgb255 0 128 0
@@ -110,6 +116,11 @@ darkGreen =
 white : Color
 white =
     rgb255 255 255 255
+
+
+lightYellow : Color
+lightYellow =
+    rgb255 255 255 153
 
 
 inputPage : Model -> Element Msg
@@ -156,12 +167,66 @@ displayPage model =
         tree =
             case Json.Decode.decodeString decodePlanJson model.currPlanText of
                 Ok planJson ->
-                    text "Success"
+                    planNodeTree planJson.plan
 
                 Err err ->
-                    text <| Json.Decode.errorToString err
+                    [ text <| Json.Decode.errorToString err ]
     in
-    column [] [ tree ]
+    column [] tree
+
+
+planNodeTree : Plan -> List (Element Msg)
+planNodeTree plan =
+    let
+        nodeTypeEl nodeType =
+            el [ Font.bold ] <| text nodeType
+
+        treeNode node nodeDetails =
+            [ el
+                [ Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
+                , Border.color lightBlue
+                , mouseOver [ Background.color lightYellow ]
+                , padding 4
+                ]
+              <|
+                paragraph [] (nodeTypeEl node.common.nodeType :: nodeDetails)
+            , childNodeTree node.common.plans
+            ]
+    in
+    case plan of
+        PCte cteNode ->
+            treeNode cteNode
+                [ text " on "
+                , el [ Font.italic ] <| text cteNode.cteName
+                , text <| " (" ++ cteNode.alias_ ++ ")"
+                ]
+
+        PGeneric genericNode ->
+            treeNode { common = genericNode }
+                []
+
+        PResult resultNode ->
+            treeNode resultNode
+                []
+
+        PSeqScan seqScanNode ->
+            treeNode seqScanNode
+                [ text " on "
+                , el [ Font.italic ] <| text seqScanNode.relationName
+                , text <| " (" ++ seqScanNode.alias_ ++ ")"
+                ]
+
+        PSort sortNode ->
+            treeNode sortNode
+                [ text " on "
+                , el [ Font.italic ] <| text <| String.join ", " sortNode.sortKey
+                ]
+
+
+childNodeTree : Plans -> Element Msg
+childNodeTree (Plans plans) =
+    column [ paddingEach { left = 20, right = 0, top = 0, bottom = 0 } ] <|
+        List.concatMap planNodeTree plans
 
 
 view : Model -> Browser.Document Msg
