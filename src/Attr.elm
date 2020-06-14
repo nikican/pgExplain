@@ -1,5 +1,6 @@
 module Attr exposing (greenButton, greyButton)
 
+import Color exposing (..)
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -14,7 +15,7 @@ greenButton =
     , Border.rounded 3
     , Border.widthEach { bottom = 3, top = 0, right = 0, left = 0 }
     , Font.bold
-    , Font.color <| rgb255 255 255 255
+    , Font.color white
     , paddingXY 20 6
     ]
 

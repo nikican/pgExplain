@@ -2,10 +2,11 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Attr exposing (..)
 import Browser
+import Color exposing (white)
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
-import Element.Events exposing (onMouseEnter, onMouseLeave)
+import Element.Events exposing (onClick, onMouseEnter, onMouseLeave)
 import Element.Font as Font
 import Element.Input as Input
 import FlatColors.AmericanPalette exposing (..)
@@ -26,6 +27,7 @@ type alias Model =
     { currPage : Page
     , currPlanText : String
     , selectedNode : Maybe Plan
+    , isMenuOpen : Bool
     }
 
 
@@ -38,6 +40,7 @@ init _ =
     ( { currPage = InputPage
       , currPlanText = ""
       , selectedNode = Nothing
+      , isMenuOpen = False
       }
     , Cmd.none
     )
@@ -62,6 +65,9 @@ type Msg
     | SubmitPlan
     | MouseEneteredPlanNode Plan
     | MouseLeftPlanNode Plan
+    | ToggleMenu
+    | CreatePlan
+    | RequestLogin
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -83,6 +89,15 @@ update msg model =
             , Cmd.none
             )
 
+        ToggleMenu ->
+            ( { model | isMenuOpen = not model.isMenuOpen }, Cmd.none )
+
+        CreatePlan ->
+            ( model, Cmd.none )
+
+        RequestLogin ->
+            ( model, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -100,7 +115,10 @@ navBar =
         , Border.color electronBlue
         ]
         [ el [ alignLeft ] <| text "VisExp"
-        , el [ alignRight ] <| text "Menu"
+        , Input.button (Attr.greyButton ++ [ padding 5, alignRight, width (px 80) ])
+            { onPress = Just ToggleMenu
+            , label = el [ centerX ] <| text "Menu"
+            }
         ]
 
 
@@ -280,6 +298,45 @@ childNodeTree (Plans plans) =
         List.concatMap planNodeTree plans
 
 
+menuPanel : Model -> Element Msg
+menuPanel model =
+    let
+        items =
+            [ el [ pointer, onClick CreatePlan ] <| text "New plan"
+            , el [ pointer, onClick RequestLogin ] <| text "Login"
+            ]
+
+        panel =
+            column
+                [ Background.color white
+                , Border.widthEach { left = 1, right = 0, top = 0, bottom = 0 }
+                , Border.color soothingBreeze
+                , Border.shadow
+                    { offset = ( 0, 0 )
+                    , size = 1
+                    , blur = 10
+                    , color = draculaOrchid
+                    }
+                , Font.bold
+                , Font.color draculaOrchid
+                , Font.family [ Font.sansSerif ]
+                , width <| fillPortion 1
+                , height fill
+                , paddingXY 20 20
+                , spacingXY 0 20
+                ]
+                items
+
+        overlay =
+            el [ width <| fillPortion 4, height fill, onClick ToggleMenu ] none
+    in
+    if model.isMenuOpen then
+        row [ width fill, height fill ] [ overlay, panel ]
+
+    else
+        none
+
+
 view : Model -> Browser.Document Msg
 view model =
     let
@@ -293,7 +350,7 @@ view model =
     in
     { title = "VisExp"
     , body =
-        [ layout [] <|
+        [ layout [ inFront <| menuPanel model ] <|
             column [ width fill, spacingXY 0 20 ]
                 [ navBar
                 , content
