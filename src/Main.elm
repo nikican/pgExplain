@@ -1,5 +1,6 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
+import Attr exposing (..)
 import Browser
 import Element exposing (..)
 import Element.Background as Background
@@ -7,6 +8,7 @@ import Element.Border as Border
 import Element.Events exposing (onMouseEnter, onMouseLeave)
 import Element.Font as Font
 import Element.Input as Input
+import FlatColors.AmericanPalette exposing (..)
 import Json.Decode
 import PlanParsers.Json exposing (..)
 
@@ -95,56 +97,11 @@ navBar =
         [ width fill
         , paddingXY 60 10
         , Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
-        , Border.color blue
+        , Border.color electronBlue
         ]
         [ el [ alignLeft ] <| text "VisExp"
         , el [ alignRight ] <| text "Menu"
         ]
-
-
-lightCharcoal : Color
-lightCharcoal =
-    rgb255 136 138 133
-
-
-blue : Color
-blue =
-    rgb255 52 101 164
-
-
-lightBlue : Color
-lightBlue =
-    rgb255 173 216 320
-
-
-green : Color
-green =
-    rgb255 0 128 0
-
-
-darkGreen : Color
-darkGreen =
-    rgb255 0 100 0
-
-
-white : Color
-white =
-    rgb255 255 255 255
-
-
-lightYellow : Color
-lightYellow =
-    rgb255 255 255 153
-
-
-grey : Color
-grey =
-    rgb255 211 215 207
-
-
-lightGray : Color
-lightGray =
-    rgb255 211 211 211
 
 
 inputPage : Model -> Element Msg
@@ -158,7 +115,7 @@ inputPage model =
             [ height (px 300)
             , Border.width 1
             , Border.rounded 3
-            , Border.color lightCharcoal
+            , Border.color americanRiver
             , padding 3
             ]
             { onChange = ChangePlanText
@@ -168,17 +125,7 @@ inputPage model =
             , spellcheck = False
             }
         , Input.button
-            [ Background.color green
-            , Border.color darkGreen
-            , Border.rounded 3
-            , Border.widthEach { bottom = 3, top = 0, right = 0, left = 0 }
-            , Font.bold
-            , Font.color white
-            , paddingXY 20 6
-            , alignRight
-            , width (px 200)
-            , height (px 40)
-            ]
+            (Attr.greenButton ++ [ width (px 200), height (px 40), alignRight ])
             { onPress = Just SubmitPlan
             , label = el [ centerX ] <| text "Go!"
             }
@@ -212,7 +159,7 @@ displayPage model =
             , alignTop
             , padding 5
             , Border.widthEach { left = 1, right = 0, top = 0, bottom = 0 }
-            , Border.color grey
+            , Border.color soothingBreeze
             ]
           <|
             details
@@ -239,7 +186,7 @@ detailedPanelContent plan =
                 el
                     [ Font.bold
                     , Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
-                    , Border.color lightGray
+                    , Border.color cityLights
                     ]
                 <|
                     text name
@@ -286,8 +233,8 @@ planNodeTree plan =
         treeNode node nodeDetails =
             [ el
                 [ Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
-                , Border.color lightBlue
-                , mouseOver [ Background.color lightYellow ]
+                , Border.color greenDarnerTail
+                , mouseOver [ Background.color sourLemon ]
                 , padding 4
                 , onMouseEnter <| MouseEneteredPlanNode plan
                 , onMouseLeave <| MouseLeftPlanNode plan
