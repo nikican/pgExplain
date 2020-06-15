@@ -414,10 +414,18 @@ menuPanel : Model -> Element Msg
 menuPanel model =
     let
         items =
-            [ el [ pointer, onClick CreatePlan ] <|
+            (el [ pointer, onClick CreatePlan ] <|
                 text "New plan"
-            , el [ pointer, onClick RequestLogin ] <| text "Login"
-            ]
+            )
+                :: (case model.sessionId of
+                        Just _ ->
+                            [ el [ pointer, onClick RequestSavedPlans ] <| text "Saved plans"
+                            , el [ pointer, onClick RequestLogout ] <| text "Logout"
+                            ]
+
+                        Nothing ->
+                            [ el [ pointer, onClick RequestLogin ] <| text "Login" ]
+                   )
 
         panel =
             column
