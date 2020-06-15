@@ -5,7 +5,6 @@ import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import FlatColors.AmericanPalette exposing (..)
 
 
 greenButton : List (Attribute msg)

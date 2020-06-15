@@ -2,14 +2,13 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Attr exposing (..)
 import Browser
-import Color exposing (white)
+import Color exposing (..)
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick, onMouseEnter, onMouseLeave)
 import Element.Font as Font
 import Element.Input as Input
-import FlatColors.AmericanPalette exposing (..)
 import Http exposing (..)
 import Json.Decode
 import Json.Encode
