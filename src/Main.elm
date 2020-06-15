@@ -223,7 +223,7 @@ navBar =
         [ width fill
         , paddingXY 60 10
         , Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
-        , Border.color electronBlue
+        , Border.color blue
         ]
         [ el [ alignLeft ] <| text "pgExplain"
         , Input.button (Attr.greyButton ++ [ padding 5, alignRight, width (px 80) ])
@@ -244,7 +244,7 @@ inputPage model =
             [ height (px 300)
             , Border.width 1
             , Border.rounded 3
-            , Border.color americanRiver
+            , Border.color lightCharcoal
             , padding 3
             ]
             { onChange = ChangePlanText
@@ -288,7 +288,7 @@ displayPage model =
             , alignTop
             , padding 5
             , Border.widthEach { left = 1, right = 0, top = 0, bottom = 0 }
-            , Border.color soothingBreeze
+            , Border.color gray
             ]
           <|
             details
@@ -315,7 +315,7 @@ detailedPanelContent plan =
                 el
                     [ Font.bold
                     , Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
-                    , Border.color cityLights
+                    , Border.color lightGray
                     ]
                 <|
                     text name
@@ -362,8 +362,8 @@ planNodeTree plan =
         treeNode node nodeDetails =
             [ el
                 [ Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
-                , Border.color greenDarnerTail
-                , mouseOver [ Background.color sourLemon ]
+                , Border.color lightBlue
+                , mouseOver [ Background.color lightYellow ]
                 , padding 4
                 , onMouseEnter <| MouseEneteredPlanNode plan
                 , onMouseLeave <| MouseLeftPlanNode plan
@@ -430,15 +430,15 @@ menuPanel model =
             column
                 [ Background.color white
                 , Border.widthEach { left = 1, right = 0, top = 0, bottom = 0 }
-                , Border.color soothingBreeze
+                , Border.color gray
                 , Border.shadow
                     { offset = ( 0, 0 )
                     , size = 1
                     , blur = 10
-                    , color = draculaOrchid
+                    , color = darkCharcoal
                     }
                 , Font.bold
-                , Font.color draculaOrchid
+                , Font.color darkCharcoal
                 , Font.family [ Font.sansSerif ]
                 , width <| fillPortion 1
                 , height fill
@@ -503,8 +503,8 @@ savedPlansPage model =
 
         headerAttrs =
             [ Font.bold
-            , Background.color cityLights
-            , Border.color draculaOrchid
+            , Background.color lightGray
+            , Border.color darkCharcoal
             , Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
             , centerX
             ]
@@ -518,7 +518,7 @@ savedPlansPage model =
                     \plan ->
                         el
                             [ Font.underline
-                            , mouseOver [ Font.color americanRiver ]
+                            , mouseOver [ Font.color lightCharcoal ]
                             , onClick <| ShowPlan plan.planText
                             ]
                         <|

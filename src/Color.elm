@@ -1,4 +1,4 @@
-module Color exposing (americanRiver, chiGong, cityLights, draculaOrchid, electronBlue, greenDarnerTail, lightGreenishBlue, mintLeaf, soothingBreeze, sourLemon, white)
+module Color exposing (blue, darkCharcoal, gray, green, lightBlue, lightCharcoal, lightGray, lightGreen, lightYellow, red, white)
 
 import Element exposing (Color, rgb255)
 import FlatColors.AmericanPalette as FlatColors exposing (..)
@@ -9,51 +9,51 @@ white =
     rgb255 255 255 255
 
 
-draculaOrchid : Color
-draculaOrchid =
-    FlatColors.draculaOrchid
-
-
-lightGreenishBlue : Color
-lightGreenishBlue =
+lightGreen : Color
+lightGreen =
     FlatColors.lightGreenishBlue
 
 
-mintLeaf : Color
-mintLeaf =
+green : Color
+green =
     FlatColors.mintLeaf
 
 
-chiGong : Color
-chiGong =
+red : Color
+red =
     FlatColors.chiGong
 
 
-cityLights : Color
-cityLights =
+lightGray : Color
+lightGray =
     FlatColors.cityLights
 
 
-soothingBreeze : Color
-soothingBreeze =
+gray : Color
+gray =
     FlatColors.soothingBreeze
 
 
-americanRiver : Color
-americanRiver =
+lightCharcoal : Color
+lightCharcoal =
     FlatColors.americanRiver
 
 
-greenDarnerTail : Color
-greenDarnerTail =
+darkCharcoal : Color
+darkCharcoal =
+    FlatColors.draculaOrchid
+
+
+lightBlue : Color
+lightBlue =
     FlatColors.greenDarnerTail
 
 
-sourLemon : Color
-sourLemon =
-    FlatColors.sourLemon
-
-
-electronBlue : Color
-electronBlue =
+blue : Color
+blue =
     FlatColors.electronBlue
+
+
+lightYellow : Color
+lightYellow =
+    FlatColors.sourLemon

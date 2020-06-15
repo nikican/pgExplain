@@ -9,8 +9,8 @@ import Element.Font as Font
 
 greenButton : List (Attribute msg)
 greenButton =
-    [ Background.color lightGreenishBlue
-    , Border.color mintLeaf
+    [ Background.color lightGreen
+    , Border.color green
     , Border.rounded 3
     , Border.widthEach { bottom = 3, top = 0, right = 0, left = 0 }
     , Font.bold
@@ -21,20 +21,20 @@ greenButton =
 
 greyButton : List (Attribute msg)
 greyButton =
-    [ Background.color cityLights
-    , Border.color soothingBreeze
+    [ Background.color lightGray
+    , Border.color gray
     , Border.rounded 3
     , Border.widthEach { bottom = 1, right = 1, top = 0, left = 0 }
     , Font.bold
-    , Font.color americanRiver
+    , Font.color lightCharcoal
     ]
 
 
 input : List (Attribute msg)
 input =
-    [ Border.width 1, Border.rounded 3, Border.color americanRiver, padding 3 ]
+    [ Border.width 1, Border.rounded 3, Border.color lightCharcoal, padding 3 ]
 
 
 error : List (Attribute msg)
 error =
-    [ Font.color chiGong ]
+    [ Font.color red ]
