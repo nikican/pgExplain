@@ -10,7 +10,9 @@ import Element.Events exposing (onClick, onMouseEnter, onMouseLeave)
 import Element.Font as Font
 import Element.Input as Input
 import FlatColors.AmericanPalette exposing (..)
+import Http exposing (..)
 import Json.Decode
+import Json.Encode
 import PlanParsers.Json exposing (..)
 
 
@@ -31,7 +33,8 @@ type alias Model =
     , isMenuOpen : Bool
     , password : String
     , userName : String
-    , loginError : String
+    , lastError : String
+    , sessionId : Maybe String
     }
 
 
@@ -47,10 +50,16 @@ init _ =
       , isMenuOpen = False
       , password = ""
       , userName = ""
-      , loginError = ""
+      , lastError = ""
+      , sessionId = Nothing
       }
     , Cmd.none
     )
+
+
+serverURL : String
+serverURL =
+    "http://localhost:3000/"
 
 
 
@@ -78,6 +87,7 @@ type Msg
     | StartLogin
     | ChangePassword String
     | ChangeUserName String
+    | FinishLogin (Result Http.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -109,7 +119,7 @@ update msg model =
             ( { model | currPage = LoginPage, password = "", userName = "" }, Cmd.none )
 
         StartLogin ->
-            ( model, Cmd.none )
+            ( model, login model.userName model.password )
 
         ChangePassword newPassword ->
             ( model, Cmd.none )
@@ -117,8 +127,53 @@ update msg model =
         ChangeUserName newUserName ->
             ( model, Cmd.none )
 
+        FinishLogin (Ok sessionId) ->
+            ( { model | sessionId = Just sessionId, currPage = InputPage }, Cmd.none )
+
+        FinishLogin (Err error) ->
+            ( { model | lastError = httpErrorString error }, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
+
+
+httpErrorString : Http.Error -> String
+httpErrorString error =
+    case error of
+        Http.BadBody message ->
+            "Unable to handle response: " ++ message
+
+        Http.BadStatus statusCode ->
+            "Server error: " ++ String.fromInt statusCode
+
+        Http.BadUrl url ->
+            "Invalid URL: " ++ url
+
+        Http.NetworkError ->
+            "Network error"
+
+        Http.Timeout ->
+            "Request timeout"
+
+
+login : String -> String -> Cmd Msg
+login userName password =
+    let
+        body =
+            Http.jsonBody <|
+                Json.Encode.object
+                    [ ( "userName", Json.Encode.string userName )
+                    , ( "password", Json.Encode.string password )
+                    ]
+
+        responseDecoder =
+            Json.Decode.field "sessionId" Json.Decode.string
+    in
+    Http.post
+        { url = serverURL ++ "login"
+        , body = body
+        , expect = Http.expectJson FinishLogin responseDecoder
+        }
 
 
 
@@ -376,6 +431,7 @@ loginPage model =
             { onPress = Just StartLogin
             , label = el [ centerX ] <| text "Login"
             }
+        , el Attr.error <| text model.lastError
         ]
 
 
