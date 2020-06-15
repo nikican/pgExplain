@@ -1,4 +1,4 @@
-module PlanParsers.Json exposing (CommonFields, CteNode, Plan(..), PlanJson, Plans(..), ResultNode, SeqScanNode, SortNode, decodeCommonFields, decodeCteNode, decodeGenericNode, decodeNode, decodePlan, decodePlanJson, decodePlans, decodeResultNode, decodeSeqScanNode, decodeSortNode)
+module PlanParsers.Json exposing (CommonFields, CteNode, Plan(..), PlanJson, Plans(..), ResultNode, SavedPlan, SeqScanNode, SortNode, decodeCommonFields, decodeCteNode, decodeGenericNode, decodeNode, decodePlan, decodePlanJson, decodePlans, decodeResultNode, decodeSavedPlans, decodeSeqScanNode, decodeSortNode)
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (..)
@@ -173,3 +173,35 @@ decodeSortNode =
                 |> required "Sort Space Type" Decode.string
     in
     Decode.map PSort innerDecoder
+
+
+type alias PlanVersion =
+    { version : Int
+    , createdAt : String
+    , planText : String
+    }
+
+
+type alias SavedPlan =
+    { id : String
+    , name : String
+    , versions : List PlanVersion
+    }
+
+
+decodePlanVersion : Decode.Decoder PlanVersion
+decodePlanVersion =
+    Decode.succeed PlanVersion
+        |> required "version" Decode.int
+        |> required "createdAt" Decode.string
+        |> required "planText" Decode.string
+
+
+decodeSavedPlans : Decode.Decoder (List SavedPlan)
+decodeSavedPlans =
+    Decode.list
+        (Decode.succeed SavedPlan
+            |> required "id" Decode.string
+            |> required "name" Decode.string
+            |> required "versions" (Decode.list decodePlanVersion)
+        )

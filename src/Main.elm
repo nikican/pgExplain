@@ -24,6 +24,7 @@ type Page
     = InputPage
     | DisplayPage
     | LoginPage
+    | SavedPlansPage
 
 
 type alias Model =
@@ -35,6 +36,7 @@ type alias Model =
     , userName : String
     , lastError : String
     , sessionId : Maybe String
+    , savedPlans : List SavedPlan
     }
 
 
@@ -52,6 +54,7 @@ init _ =
       , userName = ""
       , lastError = ""
       , sessionId = Nothing
+      , savedPlans = []
       }
     , Cmd.none
     )
@@ -84,10 +87,14 @@ type Msg
     | ToggleMenu
     | CreatePlan
     | RequestLogin
+    | RequestLogout
     | StartLogin
     | ChangePassword String
     | ChangeUserName String
     | FinishLogin (Result Http.Error String)
+    | RequestSavedPlans
+    | FinishSavedPlans (Result Http.Error (List SavedPlan))
+    | ShowPlan String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -121,6 +128,9 @@ update msg model =
         StartLogin ->
             ( model, login model.userName model.password )
 
+        RequestLogout ->
+            ( { model | currPage = InputPage, sessionId = Nothing }, Cmd.none )
+
         ChangePassword newPassword ->
             ( model, Cmd.none )
 
@@ -133,8 +143,36 @@ update msg model =
         FinishLogin (Err error) ->
             ( { model | lastError = httpErrorString error }, Cmd.none )
 
+        RequestSavedPlans ->
+            ( { model | currPage = SavedPlansPage }
+            , getSavedPlans model.sessionId
+            )
+
+        FinishSavedPlans (Ok savedPlans) ->
+            ( { model | savedPlans = savedPlans }, Cmd.none )
+
+        FinishSavedPlans (Err error) ->
+            ( { model | lastError = httpErrorString error }, Cmd.none )
+
+        ShowPlan planText ->
+            ( { model | currPlanText = planText, currPage = DisplayPage }, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
+
+
+getSavedPlans : Maybe String -> Cmd Msg
+getSavedPlans sessionId =
+    Http.request
+        { method = "GET"
+        , headers =
+            [ Http.header "SessionId" <| Maybe.withDefault "" sessionId ]
+        , url = serverURL ++ "plans"
+        , body = Http.emptyBody
+        , timeout = Nothing
+        , tracker = Nothing
+        , expect = Http.expectJson FinishSavedPlans decodeSavedPlans
+        }
 
 
 httpErrorString : Http.Error -> String
@@ -376,7 +414,8 @@ menuPanel : Model -> Element Msg
 menuPanel model =
     let
         items =
-            [ el [ pointer, onClick CreatePlan ] <| text "New plan"
+            [ el [ pointer, onClick CreatePlan ] <|
+                text "New plan"
             , el [ pointer, onClick RequestLogin ] <| text "Login"
             ]
 
@@ -435,6 +474,61 @@ loginPage model =
         ]
 
 
+savedPlansPage : Model -> Element Msg
+savedPlansPage model =
+    let
+        annotateVersion name planVersion =
+            { version = planVersion.version
+            , planText = planVersion.planText
+            , createdAt = planVersion.createdAt
+            , name = name
+            }
+
+        annotateVersions savedPlan =
+            List.map (annotateVersion savedPlan.name) savedPlan.versions
+
+        tableAttrs =
+            [ width (px 800)
+            , paddingEach { top = 10, bottom = 50, left = 10, right = 10 }
+            , spacingXY 10 10
+            , centerX
+            ]
+
+        headerAttrs =
+            [ Font.bold
+            , Background.color cityLights
+            , Border.color draculaOrchid
+            , Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
+            , centerX
+            ]
+    in
+    table tableAttrs
+        { data = List.concatMap annotateVersions model.savedPlans
+        , columns =
+            [ { header = el headerAttrs <| text "Plan name"
+              , width = fill
+              , view =
+                    \plan ->
+                        el
+                            [ Font.underline
+                            , mouseOver [ Font.color americanRiver ]
+                            , onClick <| ShowPlan plan.planText
+                            ]
+                        <|
+                            text plan.name
+              }
+            , { header = el headerAttrs <| text "Creation time"
+              , width = fill
+              , view = .createdAt >> text
+              }
+            , { header = el headerAttrs <| text "Version"
+              , width = fill
+              , view = .version >> String.fromInt >> text
+              }
+            ]
+        }
+
+
 view : Model -> Browser.Document Msg
 view model =
     let
@@ -448,6 +542,9 @@ view model =
 
                 LoginPage ->
                     loginPage model
+
+                SavedPlansPage ->
+                    savedPlansPage model
     in
     { title = "pgExplain"
     , body =
