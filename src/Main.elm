@@ -13,6 +13,7 @@ import Http exposing (..)
 import Json.Decode
 import Json.Encode
 import PlanParsers.Json exposing (..)
+import Ports exposing (..)
 
 
 
@@ -40,11 +41,11 @@ type alias Model =
 
 
 type alias Flags =
-    ()
+    { sessionId : Maybe String }
 
 
 init : Flags -> ( Model, Cmd Msg )
-init _ =
+init flags =
     ( { currPage = InputPage
       , currPlanText = ""
       , selectedNode = Nothing
@@ -52,7 +53,7 @@ init _ =
       , password = ""
       , userName = ""
       , lastError = ""
-      , sessionId = Nothing
+      , sessionId = flags.sessionId
       , savedPlans = []
       }
     , Cmd.none
@@ -137,7 +138,7 @@ update msg model =
             ( model, Cmd.none )
 
         FinishLogin (Ok sessionId) ->
-            ( { model | sessionId = Just sessionId, currPage = InputPage }, Cmd.none )
+            ( { model | sessionId = Just sessionId, currPage = InputPage }, saveSessionId <| Just sessionId )
 
         FinishLogin (Err error) ->
             ( { model | lastError = httpErrorString error }, Cmd.none )
@@ -568,7 +569,7 @@ view model =
 ---- PROGRAM ----
 
 
-main : Program () Model Msg
+main : Program Flags Model Msg
 main =
     Browser.document
         { view = view
