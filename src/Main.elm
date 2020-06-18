@@ -14,6 +14,7 @@ import Json.Decode
 import Json.Encode
 import PlanParsers.Json exposing (..)
 import Ports exposing (..)
+import Time exposing (Posix)
 
 
 
@@ -71,7 +72,10 @@ serverURL =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    dumpModel DumpModel
+    Sub.batch
+        [ dumpModel DumpModel
+        , Time.every (100 * 1000) SendHeartbeat
+        ]
 
 
 
@@ -96,6 +100,7 @@ type Msg
     | FinishSavedPlans (Result Http.Error (List SavedPlan))
     | ShowPlan String
     | DumpModel ()
+    | SendHeartbeat Time.Posix
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -164,6 +169,9 @@ update msg model =
         DumpModel () ->
             ( Debug.log "model" model, Cmd.none )
 
+        SendHeartbeat _ ->
+            ( model, sendHeartbeat model.sessionId )
+
 
 getSavedPlans : Maybe String -> Cmd Msg
 getSavedPlans sessionId =
@@ -176,6 +184,20 @@ getSavedPlans sessionId =
         , timeout = Nothing
         , tracker = Nothing
         , expect = Http.expectJson FinishSavedPlans decodeSavedPlans
+        }
+
+
+sendHeartbeat : Maybe String -> Cmd Msg
+sendHeartbeat sessionId =
+    Http.request
+        { method = "POST"
+        , headers =
+            [ Http.header "SessionId" <| Maybe.withDefault "" sessionId ]
+        , url = serverURL ++ "heartbeat"
+        , body = Http.emptyBody
+        , timeout = Nothing
+        , tracker = Nothing
+        , expect = Http.expectWhatever <| always NoOp
         }
 
 
