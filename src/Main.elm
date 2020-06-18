@@ -71,7 +71,7 @@ serverURL =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    dumpModel DumpModel
 
 
 
@@ -95,6 +95,7 @@ type Msg
     | RequestSavedPlans
     | FinishSavedPlans (Result Http.Error (List SavedPlan))
     | ShowPlan String
+    | DumpModel ()
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -159,6 +160,9 @@ update msg model =
 
         NoOp ->
             ( model, Cmd.none )
+
+        DumpModel () ->
+            ( Debug.log "model" model, Cmd.none )
 
 
 getSavedPlans : Maybe String -> Cmd Msg

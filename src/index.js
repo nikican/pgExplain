@@ -15,4 +15,6 @@ app.ports.saveSessionId.subscribe((sessionId) => {
   }
 });
 
+app.ports.dumpModel.send(null);
+
 registerServiceWorker();
