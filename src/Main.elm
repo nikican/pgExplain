@@ -138,10 +138,10 @@ update msg model =
             ( { model | currPage = InputPage, sessionId = Nothing }, Cmd.none )
 
         ChangePassword newPassword ->
-            ( model, Cmd.none )
+            ( { model | password = newPassword }, Cmd.none )
 
         ChangeUserName newUserName ->
-            ( model, Cmd.none )
+            ( { model | userName = newUserName }, Cmd.none )
 
         FinishLogin (Ok sessionId) ->
             ( { model | sessionId = Just sessionId, currPage = InputPage }, saveSessionId <| Just sessionId )
