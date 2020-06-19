@@ -2,6 +2,7 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Attr exposing (..)
 import Browser
+import Browser.Events exposing (onKeyPress)
 import Color exposing (..)
 import Element exposing (..)
 import Element.Background as Background
@@ -75,6 +76,7 @@ subscriptions model =
     Sub.batch
         [ dumpModel DumpModel
         , Time.every (100 * 1000) SendHeartbeat
+        , onKeyPress <| keyDecoder model
         ]
 
 
@@ -238,6 +240,25 @@ login userName password =
         , body = body
         , expect = Http.expectJson FinishLogin responseDecoder
         }
+
+
+keyDecoder : Model -> Json.Decode.Decoder Msg
+keyDecoder model =
+    Json.Decode.field "key" Json.Decode.string
+        |> Json.Decode.map (keyToMsg model)
+
+
+keyToMsg : Model -> String -> Msg
+keyToMsg model s =
+    case ( s, model.sessionId ) of
+        ( "s", Just id ) ->
+            RequestSavedPlans
+
+        ( "n", _ ) ->
+            CreatePlan
+
+        _ ->
+            NoOp
 
 
 
