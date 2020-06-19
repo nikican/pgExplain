@@ -2,7 +2,7 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Attr exposing (..)
 import Browser
-import Browser.Events exposing (onKeyPress)
+import Browser.Events exposing (onKeyDown)
 import Color exposing (..)
 import Element exposing (..)
 import Element.Background as Background
@@ -13,6 +13,7 @@ import Element.Input as Input
 import Http exposing (..)
 import Json.Decode
 import Json.Encode
+import Keyboard.Event exposing (KeyboardEvent, decodeKeyboardEvent)
 import PlanParsers.Json exposing (..)
 import Ports exposing (..)
 import Time exposing (Posix)
@@ -76,7 +77,7 @@ subscriptions model =
     Sub.batch
         [ dumpModel DumpModel
         , Time.every (100 * 1000) SendHeartbeat
-        , onKeyPress <| keyDecoder model
+        , onKeyDown (Json.Decode.map HandleKeyboardEvent decodeKeyboardEvent)
         ]
 
 
@@ -103,6 +104,7 @@ type Msg
     | ShowPlan String
     | DumpModel ()
     | SendHeartbeat Time.Posix
+    | HandleKeyboardEvent KeyboardEvent
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -174,6 +176,9 @@ update msg model =
         SendHeartbeat _ ->
             ( model, sendHeartbeat model.sessionId )
 
+        HandleKeyboardEvent event ->
+            update (keyToMsg model event) model
+
 
 getSavedPlans : Maybe String -> Cmd Msg
 getSavedPlans sessionId =
@@ -242,20 +247,17 @@ login userName password =
         }
 
 
-keyDecoder : Model -> Json.Decode.Decoder Msg
-keyDecoder model =
-    Json.Decode.field "key" Json.Decode.string
-        |> Json.Decode.map (keyToMsg model)
-
-
-keyToMsg : Model -> String -> Msg
-keyToMsg model s =
-    case ( s, model.sessionId ) of
-        ( "s", Just id ) ->
+keyToMsg : Model -> KeyboardEvent -> Msg
+keyToMsg model event =
+    case ( ( event.key, event.altKey, event.shiftKey ), model.sessionId ) of
+        ( ( Just "S", True, True ), Just id ) ->
             RequestSavedPlans
 
-        ( "n", _ ) ->
+        ( ( Just "N", True, True ), _ ) ->
             CreatePlan
+
+        ( ( Just "Enter", False, True ), _ ) ->
+            SubmitPlan
 
         _ ->
             NoOp
