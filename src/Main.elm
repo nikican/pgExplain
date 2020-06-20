@@ -77,7 +77,7 @@ subscriptions model =
     Sub.batch
         [ dumpModel DumpModel
         , Time.every (100 * 1000) SendHeartbeat
-        , onKeyDown (Json.Decode.map HandleKeyboardEvent decodeKeyboardEvent)
+        , onKeyDown <| keyDecoder model
         ]
 
 
@@ -104,7 +104,6 @@ type Msg
     | ShowPlan String
     | DumpModel ()
     | SendHeartbeat Time.Posix
-    | HandleKeyboardEvent KeyboardEvent
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -130,7 +129,7 @@ update msg model =
             ( { model | isMenuOpen = not model.isMenuOpen }, Cmd.none )
 
         CreatePlan ->
-            ( model, Cmd.none )
+            ( { model | currPage = InputPage, currPlanText = "" }, Cmd.none )
 
         RequestLogin ->
             ( { model | currPage = LoginPage, password = "", userName = "" }, Cmd.none )
@@ -175,9 +174,6 @@ update msg model =
 
         SendHeartbeat _ ->
             ( model, sendHeartbeat model.sessionId )
-
-        HandleKeyboardEvent event ->
-            update (keyToMsg model event) model
 
 
 getSavedPlans : Maybe String -> Cmd Msg
@@ -245,6 +241,11 @@ login userName password =
         , body = body
         , expect = Http.expectJson FinishLogin responseDecoder
         }
+
+
+keyDecoder : Model -> Json.Decode.Decoder Msg
+keyDecoder model =
+    Json.Decode.map (keyToMsg model) decodeKeyboardEvent
 
 
 keyToMsg : Model -> KeyboardEvent -> Msg
